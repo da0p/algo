@@ -13,4 +13,6 @@ void pre_order(TTNode *root);
 
 void in_order(TTNode *root, int space);
 
+void post_order(TTNode *root);
+
 #endif

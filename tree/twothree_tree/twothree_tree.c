@@ -302,3 +302,14 @@ void in_order(TTNode *root, int space) {
     printf("\n");
     in_order(root->right, space);
 }
+
+void post_order(TTNode *root)
+{
+    if (root != NULL) {
+        post_order(root->left);
+        post_order(root->middle);
+        post_order(root->right);
+        if (root->stat == 1) printf("[%d, -] ", root->first);
+        else if (root->stat == 2) printf("[%d, %d] ", root->first, root->second);
+    }
+}
