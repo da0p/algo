@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "bst.h"
+#include "common.h"
 
 #ifndef __QUEUE_LL_H__
 #define __QUEUE_LL_H__
