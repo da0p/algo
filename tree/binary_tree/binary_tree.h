@@ -1,20 +1,7 @@
 #include <stdint.h>
-
+#include "common.h"
 #ifndef __BINARY_TREE_H__
 #define __BINARY_TREE_H__
-
-typedef struct Node
-{
-    int data;
-    struct Node *left;
-    struct Node *right;
-} Node;
-typedef struct Tree 
-{
-    Node *root;
-    uint32_t height;
-    uint32_t nnodes;
-} Tree;
 
 Tree* new_tree(void);
 
