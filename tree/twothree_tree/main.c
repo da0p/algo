@@ -24,13 +24,25 @@ int main(int argc, char *argv[])
 
     insert(root, root, 80);
 
+    printf("pre-order display:\n");
+
     pre_order(root);
 
     printf("\n");
 
+    printf("level-order display:\n");
+
     level_order(root);
 
     printf("\n");
+
+    printf("post-order display:\n");
+
+    post_order(root);
+
+    printf("\n");
+
+    printf("in-order display:\n");
 
     in_order(root, 0);
 
