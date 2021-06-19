@@ -1,17 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include "twothree_tree.h"
+#include "queue_ll.h"
 
-typedef struct TTNode
-{
-    int first;
-    int second;
-
-    struct TTNode *left;
-    struct TTNode *middle;
-    struct TTNode *right;
-
-    int stat;
-} TTNode;
+#define QUEUE_SIZE_INIT 10
+#define COUNT 10
 
 TTNode* create_ttnode(int val)
 {
@@ -24,6 +18,8 @@ TTNode* create_ttnode(int val)
         ttnode->middle = NULL;
         ttnode->right = NULL;
         ttnode->stat = 1;
+
+        return ttnode;
     }
     else {
         printf("Failed to allocate memory for node\n");
@@ -31,10 +27,10 @@ TTNode* create_ttnode(int val)
     }
 }
 
-TTNode* split_node(TTNode *root, TTNode *node, int val) 
+TTNode* split_node(TTNode *root, TTNode *node, int val)
 {
     if (node != NULL) {
-        TTNode *ttn1 = NULL; 
+        TTNode *ttn1 = NULL;
         TTNode *ttn2 = NULL;
         if (val < node->first) {
             ttn1 = create_ttnode(val);
@@ -69,7 +65,8 @@ TTNode* split_node(TTNode *root, TTNode *node, int val)
             return node;
         }
     }
-    else return NULL;
+    
+    return NULL;
 }
 
 TTNode* insert(TTNode *root, TTNode *node, int val)
@@ -102,7 +99,7 @@ TTNode* insert(TTNode *root, TTNode *node, int val)
         }
         if (node->stat == 1) {
             if (val < node->first) {
-                TTNode *tmp = insert(root, node->left, val); 
+                TTNode *tmp = insert(root, node->left, val);
                 if (tmp->stat == 3) {
                     node->second = node->first;
                     node->first = tmp->first;
@@ -114,7 +111,7 @@ TTNode* insert(TTNode *root, TTNode *node, int val)
                     return node;
                 }
                 else if (tmp->stat == 2 || tmp->stat == 1) {
-                   node->left = tmp; 
+                   node->left = tmp;
                    return node;
                 }
             }
@@ -196,9 +193,84 @@ TTNode* insert(TTNode *root, TTNode *node, int val)
             }
         }
     }
+
+    return NULL;
 }
 
-void display(TTNode *root) {
+uint32_t recursive_height(TTNode *root)
+{
+    int x, y, z;
+
+    if (root != NULL) {
+        x = recursive_height(root->left);
+        y = recursive_height(root->middle);
+        z = recursive_height(root->right);
+
+        return x > y ? (x > z ? x + 1 : z + 1) : (y > z ? y + 1 : z + 1);
+        }
+
+    return 0;
+}
+
+void level_order(TTNode *root)
+{
+    int flag = 0;
+    uint32_t q_size = QUEUE_SIZE_INIT;
+    TTNode *tmp = NULL;
+    Queue *q = NULL;
+
+    q = create_queue(NULL, QUEUE_SIZE_INIT);
+
+    if (root != NULL) {
+        if (root->stat == 1) printf("[%d, -] ", root->first);
+        else if (root->stat == 2) printf("[%d, %d] ", root->first, root->second);
+        if (is_queue_full(q)) {
+            q_size += QUEUE_SIZE_INIT;
+            q = create_queue(q, q_size);
+        }
+        enqueue(q, root);
+    }
+    else {
+        printf("root node is NULL\n");
+        return;
+    }
+
+    while (!is_queue_empty(q)) {
+        tmp = dequeue(q, &flag);
+        if (flag) {
+            if (tmp->left != NULL) {
+                if (tmp->left->stat == 1) printf("[%d, -] ", tmp->left->first);
+                else if (tmp->left->stat == 2) printf("[%d, %d] ", tmp->left->first, tmp->left->second);
+                if (is_queue_full(q)) {
+                    q_size += QUEUE_SIZE_INIT;
+                    q = create_queue(q, q_size);
+                }
+                enqueue(q, tmp->left);
+            }
+            if (tmp->middle != NULL) {
+                if (tmp->middle->stat == 1) printf("[%d, -] ", tmp->middle->first);
+                else if (tmp->middle->stat == 2) printf("[%d, %d] ", tmp->middle->first, tmp->middle->second);
+                if (is_queue_full(q)) {
+                    q_size += QUEUE_SIZE_INIT;
+                    q = create_queue(q, q_size);
+                }
+                enqueue(q, tmp->middle);
+            }
+
+            if (tmp->right != NULL) {
+                if (tmp->right->stat == 1) printf("[%d, -] ", tmp->right->first);
+                else if (tmp->right->stat == 2) printf("[%d, %d] ", tmp->right->first, tmp->right->second);
+                if (is_queue_full(q)) {
+                    q_size += QUEUE_SIZE_INIT;
+                    q = create_queue(q, q_size);
+                }
+                enqueue(q, tmp->right);
+            }
+        }
+    }
+}
+
+void pre_order(TTNode *root) {
     if (root != NULL) {
         if (root->stat == 1) {
             printf("[%d, -] ", root->first);
@@ -206,37 +278,27 @@ void display(TTNode *root) {
         else if (root->stat == 2) {
             printf("[%d, %d] ", root->first, root->second);
         }
-        display(root->left);
-        display(root->middle);
-        display(root->right);
+        pre_order(root->left);
+        pre_order(root->middle);
+        pre_order(root->right);
     }
 }
 
-int main(int argc, char *argv[])
-{
-    TTNode *root = NULL;
+void in_order(TTNode *root, int space) {
+    
+    if (root == NULL)
+        return;
 
-    root = insert(root, root, 20);
+    space += COUNT;
 
-    insert(root, root, 30);
-
-    insert(root, root, 40);
-
-    insert(root, root, 50);
-
-    insert(root, root, 60);
-
-    insert(root, root, 10);
-
-    insert(root, root, 15);
-
-    insert(root, root, 70);
-
-    insert(root, root, 80);
-
-    display(root);
-
+    in_order(root->left, space);
     printf("\n");
+   for (int i = COUNT; i < space; i++)
+        printf(" ");
+    if (root->stat == 1) printf("[%d, -]\n", root->first);
+    else if (root->stat == 2) printf("[%d, %d]\n", root->first, root->second);
 
-    return 0;
+    in_order(root->middle, space);
+    printf("\n");
+    in_order(root->right, space);
 }
