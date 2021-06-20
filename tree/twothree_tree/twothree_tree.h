@@ -7,6 +7,8 @@ typedef struct TTNode TTNode;
 
 TTNode* insert(TTNode *root, TTNode *node, int val);
 
+TTNode* search(TTNode *root, int key);
+
 void level_order(TTNode *root);
 
 void pre_order(TTNode *root);
