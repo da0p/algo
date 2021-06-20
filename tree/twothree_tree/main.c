@@ -24,6 +24,18 @@ int main(int argc, char *argv[])
 
     insert(root, root, 80);
 
+    insert(root, root, 90);
+    
+    insert(root, root, 100);
+
+    insert(root, root, 130);
+
+    insert(root, root, 150);
+
+    insert(root, root, 170);
+
+    //insert(root, root, 190);
+
     printf("pre-order display:\n");
 
     pre_order(root);
@@ -47,6 +59,17 @@ int main(int argc, char *argv[])
     in_order(root, 0);
 
     printf("\n");
+
+    printf("search for 70\n");
+
+    TTNode *node = NULL;
+    node = search(root, 70);
+    if (node != NULL) { 
+        if (node->stat == 2)
+            printf("Found [%d, %d]\n", node->first, node->second);
+        else if (node->stat == 1)
+            printf("Found [%d, -]\n", node->first);
+    }
 
     return 0;
 }
