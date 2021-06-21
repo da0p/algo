@@ -42,5 +42,10 @@ int main(int argc, char *argv[])
         printf("in-order display:\n");
         in_order(root, 0);
     }
+
+    destroy_tt_tree(root);
+
+    root = NULL;
+
     return 0;
 }

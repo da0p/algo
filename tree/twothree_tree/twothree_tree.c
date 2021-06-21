@@ -903,3 +903,12 @@ void post_order(TTNode *root)
         else if (root->stat == TWO_ELEMENT) printf("[%d, %d] ", root->first, root->second);
     }
 }
+
+void destroy_tt_tree(TTNode *root) {
+    if (root != NULL) {
+        destroy_tt_tree(root->left);
+        destroy_tt_tree(root->middle);
+        destroy_tt_tree(root->right);
+        free(root);
+    }
+}

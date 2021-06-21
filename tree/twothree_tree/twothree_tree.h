@@ -9,6 +9,8 @@ TTNode* insert(TTNode *root, TTNode *node, int val);
 
 TTNode* delete(TTNode **root, TTNode *ndoe, int key);
 
+void destroy_tt_tree(TTNode *root);
+
 TTNode* search(TTNode *root, int key);
 
 void level_order(TTNode *root);
