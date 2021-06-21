@@ -293,8 +293,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
         return NULL;
     
     if (node != NULL) {
-        printf("delete %d\n", key);
-        debug(node, "node");
         if (((key == node->first && node->stat == ONE_ELEMENT) || 
             ((key == node->first || key == node->second) && node->stat == TWO_ELEMENT)) &&
             (node->swapped != PRE_SWAPPED_ELEMENT && node->swapped != SUC_SWAPPED_ELEMENT)){
@@ -334,7 +332,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                 if (node->stat == TWO_ELEMENT) {
                     if (key == node->second) {
                         TTNode *iosn = in_order_suc(node);
-                        debug(iosn, "iosn");
                         if (iosn->stat == TWO_ELEMENT) {
                             node->second = iosn->first;
                             iosn->first = iosn->second;
@@ -373,7 +370,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                     }
                     else if (key == node->first) {
                         TTNode *iopn = in_order_pre(node);
-                        debug(iopn, "iopn");
                         if (iopn->stat == TWO_ELEMENT) {
                             node->first = iopn->second;
                             iopn->second = 0;
@@ -416,8 +412,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                 /* case 2.2: the node has only one element */
                 else if (node->stat == ONE_ELEMENT) {
                     TTNode *iopn = in_order_pre(node);
-                    debug(node, "node");
-                    debug(iopn, "in_order_pre"); 
                     if (iopn->stat == TWO_ELEMENT) {
                         node->first = iopn->second;
                         iopn->second = 0;
@@ -451,7 +445,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
         else {
             if (node->stat == ONE_ELEMENT) {
                 if (key < node->first || node->swapped == PRE_SWAPPED_ELEMENT) {
-                    printf("Go left\n");
                     TTNode *tmp = delete(root, node->left, key);
                     if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
@@ -533,7 +526,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                     }
                 }
                 else if (key > node->first || node->swapped == SUC_SWAPPED_ELEMENT) {
-                    printf("Go middle 1\n");
                     TTNode *tmp = delete(root, node->middle, key);
                     if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
@@ -602,7 +594,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
             }
             else if (node->stat == TWO_ELEMENT) {
                 if (key < node->first || node->swapped == PRE_SWAPPED_ELEMENT) {
-                    printf("Go left\n");
                     TTNode *tmp = delete(root, node->left, key);
                     if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
@@ -668,7 +659,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                     }
                 }
                 else if (key > node->first && key < node->second) {
-                    printf("Go middle\n");
                     TTNode *tmp = delete(root, node->middle, key);
                     if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
@@ -728,7 +718,6 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                         
                 }// key > node->first && key < node->second close
                 else if (key > node->second || node->swapped == SUC_SWAPPED_ELEMENT) {
-                    printf("Go right\n");
                     TTNode *tmp = delete(root, node->right, key);
                     if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
