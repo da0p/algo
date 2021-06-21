@@ -13,8 +13,14 @@ typedef enum {
     TWO_ELEMENT,
     SPLITTED_ELEMENT,
     BLANK_LEAF_NODE,
-    BLANK_NODE_WITH_MERGED_CHILDREN
+    BLANK_NODE_WITH_MERGED_CHILDREN,
 } Status;
+
+typedef enum {
+    NO_SWAPPED,
+    PRE_SWAPPED_ELEMENT,			/* go left */
+    SUC_SWAPPED_ELEMENT			/* go right */
+} Swapped_Status;
 
 void debug(TTNode *node, char *str) 
 {
@@ -287,11 +293,14 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
         return NULL;
     
     if (node != NULL) {
-        if ((key == node->first && node->stat == ONE_ELEMENT) || 
-            ((key == node->first || key == node->second) && node->stat == TWO_ELEMENT)) {
-            printf("External node | Found key = %d\n", key);
+        printf("delete %d\n", key);
+        debug(node, "node");
+        if (((key == node->first && node->stat == ONE_ELEMENT) || 
+            ((key == node->first || key == node->second) && node->stat == TWO_ELEMENT)) &&
+            (node->swapped != PRE_SWAPPED_ELEMENT && node->swapped != SUC_SWAPPED_ELEMENT)){
             /* case 1: if the node found is a leaf node*/
             if (node->left == NULL && node->middle == NULL && node->right == NULL) {
+                printf("External node | Found key = %d\n", key);
                 /* case 1.1: node found with two elements */
                 if (node->stat == TWO_ELEMENT) {
                     if (key == node->second) {
@@ -325,6 +334,7 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                 if (node->stat == TWO_ELEMENT) {
                     if (key == node->second) {
                         TTNode *iosn = in_order_suc(node);
+                        debug(iosn, "iosn");
                         if (iosn->stat == TWO_ELEMENT) {
                             node->second = iosn->first;
                             iosn->first = iosn->second;
@@ -335,7 +345,10 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                             if (node->right != iosn) {
                                 node->second = iosn->first;
                                 iosn->second = 0;
-                                node->right =  delete(root, node->right, iosn->first);
+                                //node->right =  delete(root, node->right, iosn->first);
+                                node->swapped = SUC_SWAPPED_ELEMENT;
+                                node = delete(root, node, iosn->first);
+                                node->swapped = NO_SWAPPED;
                                 return node;
                             }
                             else {
@@ -360,6 +373,7 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                     }
                     else if (key == node->first) {
                         TTNode *iopn = in_order_pre(node);
+                        debug(iopn, "iopn");
                         if (iopn->stat == TWO_ELEMENT) {
                             node->first = iopn->second;
                             iopn->second = 0;
@@ -371,7 +385,10 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                                 node->first = iopn->first;
                                 iopn->second = 0;
                                 /* this is definitely a leaf node */
-                                node->left = delete(root, node->left, iopn->first); 
+                                //node->left = delete(root, node->left, iopn->first); 
+                                node->swapped = PRE_SWAPPED_ELEMENT;
+                                node = delete(root, node, iopn->first);
+                                node->swapped = NO_SWAPPED;
                                 return node;
                             }
                             else {
@@ -410,7 +427,10 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                     else if (iopn->stat == ONE_ELEMENT) {
                         if (node->left != iopn) {
                             node->first = iopn->first;
-                            node->left = delete(root, node->left, iopn->first);
+                            //node->left = delete(root, node->left, iopn->first);
+                            node->swapped = PRE_SWAPPED_ELEMENT;
+                            node = delete(root, node, iopn->first);
+                            node->swapped = NO_SWAPPED;
                             return node;
                         }
                         else {
@@ -430,8 +450,10 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
         /* if key is not found */
         else {
             if (node->stat == ONE_ELEMENT) {
-                if (key < node->first) {
+                if (key < node->first || node->swapped == PRE_SWAPPED_ELEMENT) {
+                    printf("Go left\n");
                     TTNode *tmp = delete(root, node->left, key);
+                    if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
                         node->left = tmp;
                         return node;
@@ -510,8 +532,10 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                         
                     }
                 }
-                else if (key > node->first) {
+                else if (key > node->first || node->swapped == SUC_SWAPPED_ELEMENT) {
+                    printf("Go middle 1\n");
                     TTNode *tmp = delete(root, node->middle, key);
+                    if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
                         node->middle = tmp;
                         return node;
@@ -549,15 +573,26 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                                 return node;
                             }
                             else if (node->left->stat == ONE_ELEMENT) {
-                                TTNode *pl = node->left;
-                                node->second = node->first;
-                                node->first = node->left->first;
-                                node->stat = TWO_ELEMENT;
-                                node->left = pl->left;
-                                node->middle = pl->middle;
-                                node->right = tmp->left;
-                                free(pl);
-                                free(tmp);
+                            	 if (node != *root) {
+                            	 	node->left->second = node->first;
+                            	 	node->left->right = tmp->left;
+                            	 	node->first = 0;
+                            	 	node->stat = BLANK_NODE_WITH_MERGED_CHILDREN;
+                            	 	node->left->stat = TWO_ELEMENT;
+                            	 	free(tmp);
+                            	 	return node;
+                            	 } 
+                            	 else {
+                                	TTNode *pl = node->left;
+                                	node->second = node->first;
+                                	node->first = node->left->first;
+                                	node->stat = TWO_ELEMENT;
+                                	node->left = pl->left;
+                                	node->middle = pl->middle;
+                                	node->right = tmp->left;
+                                	free(pl);
+                                	free(tmp);
+                                }
                                 return node;
                             }
                         }
@@ -566,8 +601,10 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                 }
             }
             else if (node->stat == TWO_ELEMENT) {
-                if (key < node->first) {
+                if (key < node->first || node->swapped == PRE_SWAPPED_ELEMENT) {
+                    printf("Go left\n");
                     TTNode *tmp = delete(root, node->left, key);
+                    if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
                         node->left = tmp;
                         return node;
@@ -631,7 +668,9 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                     }
                 }
                 else if (key > node->first && key < node->second) {
+                    printf("Go middle\n");
                     TTNode *tmp = delete(root, node->middle, key);
+                    if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
                         node->middle = tmp;
                         return node;
@@ -688,8 +727,10 @@ TTNode* delete(TTNode **root, TTNode *node, int key)
                     }
                         
                 }// key > node->first && key < node->second close
-                else if (key > node->second) {
+                else if (key > node->second || node->swapped == SUC_SWAPPED_ELEMENT) {
+                    printf("Go right\n");
                     TTNode *tmp = delete(root, node->right, key);
+                    if (tmp == NULL) return NULL;
                     if (tmp->stat != BLANK_LEAF_NODE && tmp->stat != BLANK_NODE_WITH_MERGED_CHILDREN) {
                         node->right = tmp;
                         return node;
