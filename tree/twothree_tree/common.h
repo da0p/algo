@@ -11,5 +11,6 @@ typedef struct TTNode
     struct TTNode *right;
 
     int stat;
+    int swapped;
 }TTNode;
 #endif
