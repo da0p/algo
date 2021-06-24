@@ -13,7 +13,7 @@ int is_empty(Queue *queue);
 
 int is_full(Queue *queue);
 
-void enqueue(Queue *queue, Node *root);
+void enqueue(Queue *queue, int data);
 
 Node* dequeue(Queue *queue, int *flag);
 
