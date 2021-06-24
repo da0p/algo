@@ -15,7 +15,7 @@ int is_full(Queue *queue);
 
 void enqueue(Queue *queue, int data);
 
-Node* dequeue(Queue *queue, int *flag);
+int dequeue(Queue *queue, int *flag);
 
 void destroy_queue(Queue *queue);
 
